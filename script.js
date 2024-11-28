@@ -16,7 +16,7 @@ const appleImage = new Image();
 appleImage.src = 'apple.png'; // Ensure this file exists in the correct directory
 
 const backgroundImage = new Image();
-backgroundImage.src = 'background.jpg'; // Replace this with your background image file
+backgroundImage.src = 'background6.png'; // Replace this with your background image file
 
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
