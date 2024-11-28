@@ -5,64 +5,43 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Resize canvas on window resize
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  initializeApples(); // Reinitialize apples on resize
-});
-
-const appleImage = new Image();
-appleImage.src = 'apple.png'; // Ensure this file exists in the correct directory
-
-const backgroundImage = new Image();
-backgroundImage.src = 'background6.png'; // Replace this with your background image file
-
-// Gravity and motion variables
+let apples = [];
+const numApples = 25; // Number of apples
+const appleSize = 40; // Fixed size for all apples
+const gravity = 0.5; // Gravity constant
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
-const gravity = 0.5; // Constant downward pull
 
-const apples = [];
-const numApples = 25; // Number of apples
-const appleSize = 40; // Constant size for all apples
+const appleImage = new Image();
+appleImage.src = 'apple.png'; // Apple image
+const backgroundImage = new Image();
+backgroundImage.src = 'background.jpg'; // Background image
 
 // Apple class
 class Apple {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = appleSize; // Apples have a fixed size
-    this.radius = this.size / 2; // For collision calculations
-    this.dx = Math.random() * 2 - 1; // Random initial horizontal velocity
-    this.dy = Math.random() * 2 - 1; // Random initial vertical velocity
+    this.radius = appleSize / 2; // Fixed radius
+    this.dx = Math.random() * 2 - 1; // Random initial velocity
+    this.dy = Math.random() * 2 - 1;
   }
 
   draw() {
-    if (appleImage.complete && appleImage.naturalWidth > 0) {
-      // Add shadow for depth
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-      ctx.beginPath();
-      ctx.ellipse(this.x + this.size / 2, this.y + this.size + 5, this.radius * 0.8, this.radius * 0.3, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
+    // Add shadow for depth
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+    ctx.beginPath();
+    ctx.ellipse(this.x + appleSize / 2, this.y + appleSize + 5, this.radius * 0.8, this.radius * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
 
-      ctx.drawImage(appleImage, this.x, this.y, this.size, this.size);
-    } else {
-      // Draw a red circle if the image fails to load
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.closePath();
-    }
+    // Draw apple
+    ctx.drawImage(appleImage, this.x, this.y, appleSize, appleSize);
   }
 
   update() {
-    // Apply gravity
+    // Apply gravity and tilt
     this.dy += gravity;
-
-    // Apply tilt from device orientation
     this.dx += tiltX * 0.05;
     this.dy += tiltY * 0.05;
 
@@ -70,25 +49,25 @@ class Apple {
     this.x += this.dx;
     this.y += this.dy;
 
-    // Friction to slow down motion
-    this.dx *= 0.98; // Horizontal friction
-    this.dy *= 0.98; // Vertical friction
+    // Friction
+    this.dx *= 0.98;
+    this.dy *= 0.98;
 
-    // Handle wall collisions
+    // Wall collisions
     if (this.x < 0) {
       this.x = 0;
-      this.dx *= -0.6; // Bounce back
+      this.dx *= -0.6;
     }
-    if (this.x + this.size > canvas.width) {
-      this.x = canvas.width - this.size;
+    if (this.x + appleSize > canvas.width) {
+      this.x = canvas.width - appleSize;
       this.dx *= -0.6;
     }
     if (this.y < 0) {
       this.y = 0;
       this.dy *= -0.6;
     }
-    if (this.y + this.size > canvas.height) {
-      this.y = canvas.height - this.size;
+    if (this.y + appleSize > canvas.height) {
+      this.y = canvas.height - appleSize;
       this.dy *= -0.6;
     }
 
@@ -96,49 +75,47 @@ class Apple {
   }
 }
 
-// Prevent overlapping during initialization
+// Initialize apples without resizing
 function initializeApples() {
-  apples.length = 0; // Clear existing apples
-
+  apples = [];
   for (let i = 0; i < numApples; i++) {
-    let x, y;
-    let overlapping;
-
-    // Ensure no apples overlap at the start
-    do {
-      overlapping = false;
-      x = Math.random() * (canvas.width - appleSize);
-      y = Math.random() * (canvas.height - appleSize);
-
-      for (const apple of apples) {
-        const distance = Math.sqrt((apple.x - x) ** 2 + (apple.y - y) ** 2);
-        if (distance < appleSize) {
-          overlapping = true;
-          break;
-        }
-      }
-    } while (overlapping);
-
+    const x = Math.random() * (canvas.width - appleSize);
+    const y = Math.random() * (canvas.height - appleSize);
     apples.push(new Apple(x, y));
   }
 }
 
-// Collision Detection and Resolution
+// Handle canvas resizing without affecting apples
+window.addEventListener('resize', () => {
+  const oldWidth = canvas.width;
+  const oldHeight = canvas.height;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Scale apples to maintain positions relative to the new canvas size
+  const scaleX = canvas.width / oldWidth;
+  const scaleY = canvas.height / oldHeight;
+
+  apples.forEach((apple) => {
+    apple.x *= scaleX;
+    apple.y *= scaleY;
+  });
+});
+
+// Resolve collisions
 function resolveCollisions() {
   for (let i = 0; i < apples.length; i++) {
     for (let j = i + 1; j < apples.length; j++) {
       const apple1 = apples[i];
       const apple2 = apples[j];
 
-      const dx = apple2.x + apple2.radius - (apple1.x + apple1.radius);
-      const dy = apple2.y + apple2.radius - (apple1.y + apple1.radius);
+      const dx = apple2.x + apple1.radius - (apple1.x + apple1.radius);
+      const dy = apple2.y + apple1.radius - (apple1.y + apple1.radius);
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < apple1.radius + apple2.radius) {
+      if (distance < appleSize) {
         // Resolve overlap
-        const overlap = (apple1.radius + apple2.radius - distance) / 2;
-
-        // Push apples apart
+        const overlap = (appleSize - distance) / 2;
         const angle = Math.atan2(dy, dx);
         const overlapX = Math.cos(angle) * overlap;
         const overlapY = Math.sin(angle) * overlap;
@@ -148,7 +125,7 @@ function resolveCollisions() {
         apple2.x += overlapX;
         apple2.y += overlapY;
 
-        // Exchange velocities with reduced bounce
+        // Exchange velocities
         const tempDx = apple1.dx;
         const tempDy = apple1.dy;
         apple1.dx = apple2.dx * 0.7;
@@ -160,31 +137,31 @@ function resolveCollisions() {
   }
 }
 
-// Device orientation event listener
-window.addEventListener('deviceorientation', (event) => {
-  tiltX = event.gamma || 0; // Left/Right tilt
-  tiltY = event.beta || 0;  // Up/Down tilt
-});
-
 // Animation loop
 function animate() {
-  // Draw the background image
-  if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw background
+  if (backgroundImage.complete) {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
   }
 
   // Update and draw apples
-  apples.forEach(apple => apple.update());
+  apples.forEach((apple) => apple.update());
 
-  // Handle collisions
+  // Resolve collisions
   resolveCollisions();
 
-  // Request the next frame
   requestAnimationFrame(animate);
 }
 
-// Start the animation once the image loads
-backgroundImage.onload = () => {
+// Start game when images are loaded
+appleImage.onload = () => {
   initializeApples();
   animate();
+};
+
+backgroundImage.onload = () => {
+  // Ensure background loads before drawing
+  console.log("Background loaded.");
 };
