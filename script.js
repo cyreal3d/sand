@@ -5,31 +5,33 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let apples = [];
+const appleImage = new Image();
+appleImage.src = 'apple.png'; // Replace this with your apple image path
+const backgroundImage = new Image();
+backgroundImage.src = 'background6.png'; // Replace this with your background image path
+
+// Game variables
 const numApples = 25; // Number of apples
-const appleSize = 40; // Fixed size for all apples
+const appleSize = 40; // Fixed size for apples
 const gravity = 0.5; // Gravity constant
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
 
-const appleImage = new Image();
-appleImage.src = 'apple.png'; // Apple image
-const backgroundImage = new Image();
-backgroundImage.src = 'background6.png'; // Background image
+const apples = [];
 
 // Apple class
 class Apple {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.radius = appleSize / 2; // Fixed radius
-    this.dx = Math.random() * 2 - 1; // Random initial velocity
-    this.dy = Math.random() * 2 - 1;
+    this.radius = appleSize / 2;
+    this.dx = Math.random() * 2 - 1; // Random initial horizontal velocity
+    this.dy = Math.random() * 2 - 1; // Random initial vertical velocity
   }
 
   draw() {
-    // Add shadow for depth
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+    // Draw shadow for depth
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
     ctx.ellipse(this.x + appleSize / 2, this.y + appleSize + 5, this.radius * 0.8, this.radius * 0.3, 0, 0, Math.PI * 2);
     ctx.fill();
@@ -49,7 +51,7 @@ class Apple {
     this.x += this.dx;
     this.y += this.dy;
 
-    // Friction
+    // Friction to slow down movement
     this.dx *= 0.98;
     this.dy *= 0.98;
 
@@ -75,32 +77,16 @@ class Apple {
   }
 }
 
-// Initialize apples without resizing
+// Initialize apples
 function initializeApples() {
-  apples = [];
+  apples.length = 0; // Clear existing apples
+
   for (let i = 0; i < numApples; i++) {
     const x = Math.random() * (canvas.width - appleSize);
     const y = Math.random() * (canvas.height - appleSize);
     apples.push(new Apple(x, y));
   }
 }
-
-// Handle canvas resizing without affecting apples
-window.addEventListener('resize', () => {
-  const oldWidth = canvas.width;
-  const oldHeight = canvas.height;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  // Scale apples to maintain positions relative to the new canvas size
-  const scaleX = canvas.width / oldWidth;
-  const scaleY = canvas.height / oldHeight;
-
-  apples.forEach((apple) => {
-    apple.x *= scaleX;
-    apple.y *= scaleY;
-  });
-});
 
 // Resolve collisions
 function resolveCollisions() {
@@ -142,26 +128,44 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw background
-  if (backgroundImage.complete) {
+  if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
   }
 
   // Update and draw apples
   apples.forEach((apple) => apple.update());
 
-  // Resolve collisions
+  // Handle collisions
   resolveCollisions();
 
   requestAnimationFrame(animate);
 }
 
-// Start game when images are loaded
-appleImage.onload = () => {
-  initializeApples();
-  animate();
-};
+// Device orientation event listener
+window.addEventListener('deviceorientation', (event) => {
+  tiltX = event.gamma || 0; // Left/Right tilt
+  tiltY = event.beta || 0;  // Up/Down tilt
+});
 
-backgroundImage.onload = () => {
-  // Ensure background loads before drawing
-  console.log("Background loaded.");
-};
+// Resize canvas on window resize
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initializeApples();
+});
+
+// Start the game after images load
+let imagesLoaded = 0;
+function startGame() {
+  imagesLoaded++;
+  if (imagesLoaded === 2) {
+    initializeApples();
+    animate();
+  }
+}
+
+backgroundImage.onload = startGame;
+appleImage.onload = startGame;
+
+backgroundImage.onerror = () => console.error('Background image failed to load.');
+appleImage.onerror = () => console.error('Apple image failed to load.');
