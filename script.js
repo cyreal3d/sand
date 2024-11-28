@@ -47,25 +47,25 @@ class Apple {
     this.y += this.dy;
 
     // Friction to slow down motion
-    this.dx *= 0.98;
-    this.dy *= 0.98;
+    this.dx *= 0.96; // Reduce velocity gradually (horizontal friction)
+    this.dy *= 0.96; // Reduce velocity gradually (vertical friction)
 
     // Handle wall collisions
     if (this.x < 0) {
       this.x = 0;
-      this.dx *= -0.8; // Bounce back
+      this.dx *= -0.6; // Bounce back with less energy
     }
     if (this.x + this.size > canvas.width) {
       this.x = canvas.width - this.size;
-      this.dx *= -0.8;
+      this.dx *= -0.6;
     }
     if (this.y < 0) {
       this.y = 0;
-      this.dy *= -0.8;
+      this.dy *= -0.6;
     }
     if (this.y + this.size > canvas.height) {
       this.y = canvas.height - this.size;
-      this.dy *= -0.8;
+      this.dy *= -0.6;
     }
 
     this.draw();
@@ -97,13 +97,13 @@ function resolveCollisions() {
         apple2.x += overlapX;
         apple2.y += overlapY;
 
-        // Exchange velocities (simple elastic collision)
+        // Exchange velocities with reduced bounce
         const tempDx = apple1.dx;
         const tempDy = apple1.dy;
-        apple1.dx = apple2.dx;
-        apple1.dy = apple2.dy;
-        apple2.dx = tempDx;
-        apple2.dy = tempDy;
+        apple1.dx = apple2.dx * 0.7; // Reduce bounce effect (70% energy)
+        apple1.dy = apple2.dy * 0.7;
+        apple2.dx = tempDx * 0.7;
+        apple2.dy = tempDy * 0.7;
       }
     }
   }
