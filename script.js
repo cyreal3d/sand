@@ -1,16 +1,15 @@
 const canvas = document.getElementById('appleCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set canvas size
+// Set initial canvas size
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const appleImage = new Image();
-appleImage.src = 'apple.png'; // Replace this with your apple image path
+appleImage.src = 'apple.png'; // Replace with your apple image path
 const backgroundImage = new Image();
-backgroundImage.src = 'background6.png'; // Replace this with your background image path
+backgroundImage.src = 'background.jpg'; // Replace with your background image path
 
-// Game variables
 const numApples = 25; // Number of apples
 const appleSize = 40; // Fixed size for apples
 const gravity = 0.5; // Gravity constant
@@ -33,7 +32,15 @@ class Apple {
     // Draw shadow for depth
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
-    ctx.ellipse(this.x + appleSize / 2, this.y + appleSize + 5, this.radius * 0.8, this.radius * 0.3, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      this.x + appleSize / 2,
+      this.y + appleSize + 5,
+      this.radius * 0.8,
+      this.radius * 0.3,
+      0,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
     ctx.closePath();
 
@@ -51,7 +58,7 @@ class Apple {
     this.x += this.dx;
     this.y += this.dy;
 
-    // Friction to slow down movement
+    // Friction
     this.dx *= 0.98;
     this.dy *= 0.98;
 
@@ -80,7 +87,6 @@ class Apple {
 // Initialize apples
 function initializeApples() {
   apples.length = 0; // Clear existing apples
-
   for (let i = 0; i < numApples; i++) {
     const x = Math.random() * (canvas.width - appleSize);
     const y = Math.random() * (canvas.height - appleSize);
@@ -147,15 +153,26 @@ window.addEventListener('deviceorientation', (event) => {
   tiltY = event.beta || 0;  // Up/Down tilt
 });
 
-// Resize canvas on window resize
+// Resize canvas without resizing apples
 window.addEventListener('resize', () => {
+  const prevWidth = canvas.width;
+  const prevHeight = canvas.height;
+
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  initializeApples();
+
+  const scaleX = canvas.width / prevWidth;
+  const scaleY = canvas.height / prevHeight;
+
+  apples.forEach((apple) => {
+    apple.x *= scaleX;
+    apple.y *= scaleY;
+  });
 });
 
-// Start the game after images load
+// Start game after images load
 let imagesLoaded = 0;
+
 function startGame() {
   imagesLoaded++;
   if (imagesLoaded === 2) {
