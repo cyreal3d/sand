@@ -12,8 +12,12 @@ window.addEventListener('resize', () => {
   initializeApples(); // Reinitialize apples on resize
 });
 
-const appleImage = new Image();
-appleImage.src = 'apple.png'; // Replace with your apple image
+ctx.fillStyle = 'red';
+ctx.beginPath();
+ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
+ctx.fill();
+ctx.closePath();
+
 
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
