@@ -18,7 +18,7 @@ appleImage.src = 'apple.png'; // Replace with your apple image
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
-const gravity = 0.2; // Constant downward pull
+const gravity = 0.5; // Stronger constant downward pull
 
 const apples = [];
 const numApples = 25; // Number of apples
@@ -39,23 +39,25 @@ class Apple {
   }
 
   update() {
-    // Apply gravity and tilt (gravity simulation)
-    this.dy += gravity; // Constant downward gravity
-    this.dx += tiltX * 0.05; // Horizontal tilt
-    this.dy += tiltY * 0.05; // Vertical tilt enhances gravity effect
+    // Apply gravity
+    this.dy += gravity;
+
+    // Apply tilt from device orientation
+    this.dx += tiltX * 0.05;
+    this.dy += tiltY * 0.05;
 
     // Update position
     this.x += this.dx;
     this.y += this.dy;
 
     // Friction to slow down motion
-    this.dx *= 0.98; // Reduce velocity gradually (horizontal friction)
-    this.dy *= 0.98; // Reduce velocity gradually (vertical friction)
+    this.dx *= 0.98; // Horizontal friction
+    this.dy *= 0.98; // Vertical friction
 
     // Handle wall collisions
     if (this.x < 0) {
       this.x = 0;
-      this.dx *= -0.6; // Bounce back with less energy
+      this.dx *= -0.6; // Bounce back
     }
     if (this.x + this.size > canvas.width) {
       this.x = canvas.width - this.size;
@@ -102,7 +104,7 @@ function resolveCollisions() {
         // Exchange velocities with reduced bounce
         const tempDx = apple1.dx;
         const tempDy = apple1.dy;
-        apple1.dx = apple2.dx * 0.7; // Reduce bounce effect (70% energy)
+        apple1.dx = apple2.dx * 0.7;
         apple1.dy = apple2.dy * 0.7;
         apple2.dx = tempDx * 0.7;
         apple2.dy = tempDy * 0.7;
