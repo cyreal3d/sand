@@ -132,7 +132,8 @@ window.addEventListener('deviceorientation', (event) => {
 
 // Animation loop
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+  // Clear the entire canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Update and draw apples
   apples.forEach(apple => apple.update());
@@ -140,8 +141,10 @@ function animate() {
   // Handle collisions
   resolveCollisions();
 
+  // Request the next frame
   requestAnimationFrame(animate);
 }
+
 
 // Start the animation once the image loads
 appleImage.onload = () => {
