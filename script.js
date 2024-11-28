@@ -40,16 +40,17 @@ class Apple {
 
   update() {
     // Apply gravity and tilt (gravity simulation)
-    this.dy += gravity + tiltY * 0.05; // Gravity pulls down, tilt modifies it
-    this.dx += tiltX * 0.05;           // Tilt affects horizontal motion
+    this.dy += gravity; // Constant downward gravity
+    this.dx += tiltX * 0.05; // Horizontal tilt
+    this.dy += tiltY * 0.05; // Vertical tilt enhances gravity effect
 
     // Update position
     this.x += this.dx;
     this.y += this.dy;
 
     // Friction to slow down motion
-    this.dx *= 0.96; // Reduce velocity gradually (horizontal friction)
-    this.dy *= 0.96; // Reduce velocity gradually (vertical friction)
+    this.dx *= 0.98; // Reduce velocity gradually (horizontal friction)
+    this.dy *= 0.98; // Reduce velocity gradually (vertical friction)
 
     // Handle wall collisions
     if (this.x < 0) {
@@ -145,6 +146,7 @@ appleImage.onload = () => {
   initializeApples();
   animate();
 };
+
 
   animate();
 };
