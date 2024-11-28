@@ -18,7 +18,7 @@ appleImage.src = 'apple.png'; // Replace with your apple image
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
-const gravity = 0.5; // Stronger constant downward pull
+const gravity = 0.5; // Constant downward pull
 
 const apples = [];
 const numApples = 25; // Number of apples
@@ -35,7 +35,16 @@ class Apple {
   }
 
   draw() {
-    ctx.drawImage(appleImage, this.x, this.y, this.size, this.size);
+    // Fallback: Draw a red circle if the image is missing
+    if (!appleImage.complete) {
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+    } else {
+      ctx.drawImage(appleImage, this.x, this.y, this.size, this.size);
+    }
   }
 
   update() {
@@ -132,8 +141,7 @@ window.addEventListener('deviceorientation', (event) => {
 
 // Animation loop
 function animate() {
-  // Clear the entire canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
   // Update and draw apples
   apples.forEach(apple => apple.update());
@@ -141,10 +149,8 @@ function animate() {
   // Handle collisions
   resolveCollisions();
 
-  // Request the next frame
   requestAnimationFrame(animate);
 }
-
 
 // Start the animation once the image loads
 appleImage.onload = () => {
