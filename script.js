@@ -15,7 +15,7 @@ let tiltY = 0; // Vertical tilt
 const appleImage = new Image();
 appleImage.src = 'apple.png'; // Apple image
 const backgroundImage = new Image();
-backgroundImage.src = 'background.jpg'; // Background image
+backgroundImage.src = 'background6.jpg'; // Background image
 
 // Apple class
 class Apple {
