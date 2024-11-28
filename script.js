@@ -85,6 +85,43 @@ class Apple {
   }
 }
 
+// Collision Detection and Resolution
+function resolveCollisions() {
+  for (let i = 0; i < apples.length; i++) {
+    for (let j = i + 1; j < apples.length; j++) {
+      const apple1 = apples[i];
+      const apple2 = apples[j];
+
+      const dx = apple2.x + apple2.radius - (apple1.x + apple1.radius);
+      const dy = apple2.y + apple2.radius - (apple1.y + apple1.radius);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < apple1.radius + apple2.radius) {
+        // Resolve overlap
+        const overlap = (apple1.radius + apple2.radius - distance) / 2;
+
+        // Push apples apart
+        const angle = Math.atan2(dy, dx);
+        const overlapX = Math.cos(angle) * overlap;
+        const overlapY = Math.sin(angle) * overlap;
+
+        apple1.x -= overlapX;
+        apple1.y -= overlapY;
+        apple2.x += overlapX;
+        apple2.y += overlapY;
+
+        // Exchange velocities with reduced bounce
+        const tempDx = apple1.dx;
+        const tempDy = apple1.dy;
+        apple1.dx = apple2.dx * 0.7;
+        apple1.dy = apple2.dy * 0.7;
+        apple2.dx = tempDx * 0.7;
+        apple2.dy = tempDy * 0.7;
+      }
+    }
+  }
+}
+
 // Initialize apples
 function initializeApples() {
   apples.length = 0; // Clear existing apples
@@ -110,13 +147,15 @@ function animate() {
   // Update and draw apples
   apples.forEach(apple => apple.update());
 
+  // Handle collisions
+  resolveCollisions();
+
   // Request the next frame
   requestAnimationFrame(animate);
 }
 
 // Start the animation once the image loads
 appleImage.onload = () => {
-  console.log("Apple image loaded!");
   initializeApples();
   animate();
 };
