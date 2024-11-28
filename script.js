@@ -8,7 +8,7 @@ canvas.height = window.innerHeight;
 const appleImage = new Image();
 appleImage.src = 'apple.png'; // Replace this with your apple image path
 const backgroundImage = new Image();
-backgroundImage.src = 'background.jpg'; // Replace this with your background image path
+backgroundImage.src = 'background6.png'; // Replace this with your background image path
 
 // Game variables
 const numApples = 25; // Number of apples
