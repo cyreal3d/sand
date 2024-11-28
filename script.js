@@ -30,12 +30,19 @@ class Apple {
     this.y = y;
     this.size = size;
     this.radius = size / 2; // For collision calculations
-    this.dx = 0; // Horizontal velocity
-    this.dy = 0; // Vertical velocity
+    this.dx = Math.random() * 2 - 1; // Random initial horizontal velocity
+    this.dy = Math.random() * 2 - 1; // Random initial vertical velocity
   }
 
   draw() {
     if (appleImage.complete && appleImage.naturalWidth > 0) {
+      // Add shadow for depth
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.beginPath();
+      ctx.ellipse(this.x + this.size / 2, this.y + this.size + 5, this.radius * 0.8, this.radius * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+
       ctx.drawImage(appleImage, this.x, this.y, this.size, this.size);
     } else {
       // Draw a red circle if the image fails to load
@@ -85,6 +92,34 @@ class Apple {
   }
 }
 
+// Prevent overlapping during initialization
+function initializeApples() {
+  apples.length = 0; // Clear existing apples
+  const appleSize = 40; // Size of each apple
+
+  for (let i = 0; i < numApples; i++) {
+    let x, y;
+    let overlapping;
+
+    // Ensure no apples overlap at the start
+    do {
+      overlapping = false;
+      x = Math.random() * (canvas.width - appleSize);
+      y = Math.random() * (canvas.height - appleSize);
+
+      for (const apple of apples) {
+        const distance = Math.sqrt((apple.x - x) ** 2 + (apple.y - y) ** 2);
+        if (distance < appleSize) {
+          overlapping = true;
+          break;
+        }
+      }
+    } while (overlapping);
+
+    apples.push(new Apple(x, y, appleSize));
+  }
+}
+
 // Collision Detection and Resolution
 function resolveCollisions() {
   for (let i = 0; i < apples.length; i++) {
@@ -122,17 +157,6 @@ function resolveCollisions() {
   }
 }
 
-// Initialize apples
-function initializeApples() {
-  apples.length = 0; // Clear existing apples
-  const appleSize = 40; // Size of each apple
-  for (let i = 0; i < numApples; i++) {
-    const x = Math.random() * (canvas.width - appleSize);
-    const y = Math.random() * (canvas.height - appleSize);
-    apples.push(new Apple(x, y, appleSize));
-  }
-}
-
 // Device orientation event listener
 window.addEventListener('deviceorientation', (event) => {
   tiltX = event.gamma || 0; // Left/Right tilt
@@ -156,13 +180,6 @@ function animate() {
 
 // Start the animation once the image loads
 appleImage.onload = () => {
-  initializeApples();
-  animate();
-};
-
-// Fallback if the image fails to load
-appleImage.onerror = () => {
-  console.error("Failed to load apple image. Drawing circles instead.");
   initializeApples();
   animate();
 };
