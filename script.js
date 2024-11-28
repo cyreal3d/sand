@@ -15,6 +15,9 @@ window.addEventListener('resize', () => {
 const appleImage = new Image();
 appleImage.src = 'apple.png'; // Ensure this file exists in the correct directory
 
+const backgroundImage = new Image();
+backgroundImage.src = 'background.jpg'; // Replace this with your background image file
+
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
@@ -165,8 +168,10 @@ window.addEventListener('deviceorientation', (event) => {
 
 // Animation loop
 function animate() {
-  // Clear the canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Draw the background image
+  if (backgroundImage.complete && backgroundImage.naturalWidth > 0) {
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  }
 
   // Update and draw apples
   apples.forEach(apple => apple.update());
@@ -179,7 +184,7 @@ function animate() {
 }
 
 // Start the animation once the image loads
-appleImage.onload = () => {
+backgroundImage.onload = () => {
   initializeApples();
   animate();
 };
