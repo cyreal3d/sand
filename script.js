@@ -22,14 +22,15 @@ const gravity = 0.5; // Constant downward pull
 
 const apples = [];
 const numApples = 25; // Number of apples
+const appleSize = 40; // Constant size for all apples
 
 // Apple class
 class Apple {
-  constructor(x, y, size) {
+  constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = size;
-    this.radius = size / 2; // For collision calculations
+    this.size = appleSize; // Apples have a fixed size
+    this.radius = this.size / 2; // For collision calculations
     this.dx = Math.random() * 2 - 1; // Random initial horizontal velocity
     this.dy = Math.random() * 2 - 1; // Random initial vertical velocity
   }
@@ -95,7 +96,6 @@ class Apple {
 // Prevent overlapping during initialization
 function initializeApples() {
   apples.length = 0; // Clear existing apples
-  const appleSize = 40; // Size of each apple
 
   for (let i = 0; i < numApples; i++) {
     let x, y;
@@ -116,7 +116,7 @@ function initializeApples() {
       }
     } while (overlapping);
 
-    apples.push(new Apple(x, y, appleSize));
+    apples.push(new Apple(x, y));
   }
 }
 
