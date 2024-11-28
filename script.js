@@ -18,6 +18,7 @@ appleImage.src = 'apple.png'; // Replace with your apple image
 // Gravity and motion variables
 let tiltX = 0; // Horizontal tilt
 let tiltY = 0; // Vertical tilt
+const gravity = 0.2; // Constant downward pull
 
 const apples = [];
 const numApples = 25; // Number of apples
@@ -38,9 +39,9 @@ class Apple {
   }
 
   update() {
-    // Apply tilt (gravity simulation)
-    this.dx += tiltX * 0.1;
-    this.dy += tiltY * 0.1;
+    // Apply gravity and tilt (gravity simulation)
+    this.dy += gravity + tiltY * 0.05; // Gravity pulls down, tilt modifies it
+    this.dx += tiltX * 0.05;           // Tilt affects horizontal motion
 
     // Update position
     this.x += this.dx;
@@ -142,5 +143,8 @@ function animate() {
 // Start the animation once the image loads
 appleImage.onload = () => {
   initializeApples();
+  animate();
+};
+
   animate();
 };
